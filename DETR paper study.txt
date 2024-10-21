@@ -1,0 +1,55 @@
+﻿Object detection을 direct set prediction problem으로 본다. -> nms, bounding box regularization등 많은 hand designed들의 영향(사람의 사전지식, prior knowledge가 들어가는)이 줄어드는 detection pipeline을 만든다.
+
+
+DETR은 bipartite matching에 대한 unique predictions를 하게 만드는 set based global loss다. 
+(transformer도 포함해서)
+
+
+DETR은 글로벌한 image context와 objects간에 relation을 포착하고 predictions의 final set을 병렬적으로 산출한다.
+
+
+transformers에 기반한 encoder decoder architecture를 채택한다. 
+
+
+트랜스포머 구조상 중복되는 predictions를 제거하는 등에 특화되어있다. -> specific constraints of set prediction
+
+
+bipartite matching : (predicted , ground-truth objects)
+
+
+DETR은 customized layers를 요구하지 않는다.
+
+
+ 이 논문의 matching loss는 unique하게 prediction과 ground tryth object를 대응시키고 조합 등에 대해 invariant하므로 parallel하게 예측을 반환한다.
+
+
+set prediction 
+1. near duplicates 피하는게 중요하다. 하지만 이 모델은 postprocessing free다.
+2. hungarian algorithm 기반 loss를 design해서 permutation에 대해 prediction 매칭이 달라지지 않고 각각의 target에 대해 unique matching이 존재함을 보장한다.
+
+
+-> bipartite matching loss approach
+
+
+Object detection
+
+
+set based loss : 
+
+
+set prediction loss : optimal bipartite matching(predicted & ground truth) -> object specific(boundng box)
+
+
+N은 image의 objects의 수보다 많고 나머지 갭은 공집합으로 표시한다. 
+
+
+DERT는 one to one matching for direct set prediction(duplicates없이, 이게 다른 모델들과의 차이)다. 
+
+
+match loss를 구한 다음, 이 loss을 계산한다. 모든 matched pairs에 대해 hungarian loss를 구한다. 
+
+
+실제 실험에서는, c_i가 객체 no object일때는 log prob term을 down eight해 class imbalance에 대응한다.
+
+
+Faster R-CNN의 subsampling을 통한 balancing과 유사하다.
